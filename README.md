@@ -3,6 +3,8 @@
 
 It is designed to be easy to use, with great typescript support and minimal boilerplate code.
 
+This package has been in active use in production at [Dodona](https://dodona.be), with thousands of users daily, since early 2023.
+
 ## Getting started
 Install the package via npm or yarn:
 ```bash
