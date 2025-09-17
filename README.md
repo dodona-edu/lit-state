@@ -14,36 +14,24 @@ npm install @dodona/lit-state
 ### Usage
 Statefull objects inherit from `State` and use the `stateProperty` decorator for properties that should be tracked.
 ```ts
-import { State, stateProperty } from '@dodona/lit-state';
 class CounterState extends State {
-  @stateProperty()
-  count = 0;
-
-  increment() {
-    this.count++;
-  }
+  @stateProperty() count = 0;
 }
+
+// global state that can be shared between components
+const counterState = new CounterState();
 ```
 
 Components that want to use state inherit from `LitElement` and use the `StateController` to track state properties that are read during render.
 You only need to define the `StateController` once per component, it will automatically track all state properties that are read during render and subscribe to them.
 ```ts
-import { LitElement, html } from 'lit';
-import { customElement } from 'lit/decorators.js';
-import { StateController } from '@dodona/lit-state';
-import { CounterState } from './CounterState';
-
-// global state that can be shared between components
-const counterState = new CounterState();
-
-@customElement('counter-component')
 class CounterComponent extends LitElement {
   private stateController = new StateController(this);
 
   render() {
     return html`
       <div>Count: ${counterState.count}</div>
-      <button @click=${() => counterState.increment()}>Increment</button>
+      <button @click=${() => counterState.count++ }>Increment</button>
     `;
   }
 }
