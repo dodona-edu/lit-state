@@ -1,0 +1,31 @@
+{
+  "name": "@dodona/lit-state",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "repository": "https://github.com/dodona-edu/trace-component",
+  "author": "team Dodona <dodona@ugent.be>",
+  "license": "MIT",
+  "scripts": {
+    "test": "vitest",
+    "build": "tsc",
+    "lint": "eslint  --ext '.ts' ./src"
+  },
+  "dependencies": {
+    "lit": "^3.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@open-wc/testing-helpers": "^3.0.1",
+    "eslint": "^9.35.0",
+    "jiti": "^2.5.1",
+    "jsdom": "^27.0.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.0",
+    "vitest": "^3.2.4"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}
