@@ -6,7 +6,7 @@
   "files": [
     "dist"
   ],
-  "repository": "https://github.com/dodona-edu/trace-component",
+  "repository": "https://github.com/dodona-edu/lit-state",
   "author": "team Dodona <dodona@ugent.be>",
   "license": "MIT",
   "scripts": {
