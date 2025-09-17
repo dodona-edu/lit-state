@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+
 import { State } from "../src/State";
 import { StateController } from "../src/StateController";
 import { stateProperty } from "../src/StateProperty";
