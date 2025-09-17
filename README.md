@@ -1,8 +1,9 @@
-@dodona/lit-state is a state management system for [lit](https://lit.dev/) that combines the best of [litState](https://www.npmjs.com/package/lit-element-state) and [@lit-app/state](https://www.npmjs.com/package/@lit-app/state).
+# Lit state 
+`@dodona/lit-state` is a state management system for [lit](https://lit.dev/) that combines the best of [litState](https://www.npmjs.com/package/lit-element-state) and [@lit-app/state](https://www.npmjs.com/package/@lit-app/state).
 
 It is designed to be easy to use, with great typescript support and minimal boilerplate code.
 
-# Getting started
+## Getting started
 Install the package via npm or yarn:
 ```bash
 yarn add @dodona/lit-state
@@ -10,7 +11,7 @@ yarn add @dodona/lit-state
 npm install @dodona/lit-state
 ```
 
-## Usage
+### Usage
 Statefull objects inherit from `State` and use the `stateProperty` decorator for properties that should be tracked.
 ```ts
 import { State, stateProperty } from '@dodona/lit-state';
@@ -48,7 +49,7 @@ class CounterComponent extends LitElement {
 }
 ```
 
-# API
+## API
 The package exports the following:
 - `State` a class that inherits from `EventTarget`. It can be subscribed to and will dispatch an event to all subscribers when any of its properties change. It also record every read of it's properties to the stateRecorder. All credits to _@lit-app/state_ for the idea to use `EventTarget` to avoid reinventing an event system.
 - `stateProperty` a decorator used for properties in the `State` class. This decorator overwrites the get and set methods to make sure events get dispatched.
@@ -57,6 +58,6 @@ The package exports the following:
 - `StateEvent` a custom event that signifies state changes. Credits _@lit-app/state_
 - `StateMap` extends `State` and implements `Map`. It  notifies subscribers of key changes as if it where stateProperties.
 
-# Contributing
+## Contributing
 Contributions are welcome! Please open an issue or a pull request on GitHub.
 See `package.json` for scripts to build, test and lint the project.
