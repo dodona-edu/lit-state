@@ -12,7 +12,8 @@
   "scripts": {
     "test": "vitest",
     "build": "tsc",
-    "lint": "eslint  --ext '.ts' ./src"
+    "lint": "eslint  --ext '.ts' ./src",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "lit": "^3.3.1"
