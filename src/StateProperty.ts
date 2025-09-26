@@ -6,20 +6,47 @@ import { State } from "./State";
  *
  * @returns {void}
  */
-export const stateProperty = (proto: State, name?: PropertyKey): void => {
-    const key = typeof name === "symbol" ? Symbol() : `__${name}`;
-    const currentVal = proto[name];
-    Object.defineProperty(proto, name, {
-        get(): unknown {
+export function stateProperty(
+    _proto: State,
+    name: string | symbol,
+    descriptor?: PropertyDescriptor
+): PropertyDescriptor | void | any {
+    const key = typeof name === "symbol" ? Symbol() : `__${String(name)}`;
+
+    // Case 1: field (no accessor descriptor passed)
+    if (!descriptor) {
+        return {
+            get(this: any) {
+                this.recordRead(name);
+                return this[key];
+            },
+            set(this: any, value: unknown) {
+                this[key] = value;
+                this.dispatchStateEvent(name);
+            },
+            enumerable: true,
+            configurable: true,
+        };
+    }
+
+    // Case 2: accessor (getter/setter present)
+    const originalGet = descriptor.get;
+    const originalSet = descriptor.set;
+
+    return {
+        get(this: any) {
             this.recordRead(name);
-            return this[key];
+            return originalGet ? originalGet.call(this) : this[key];
         },
-        set(value: unknown) {
-            this[key] = value;
+        set(this: any, value: unknown) {
+            if (originalSet) {
+                originalSet.call(this, value);
+            } else {
+                this[key] = value;
+            }
             this.dispatchStateEvent(name);
         },
-        configurable: true,
         enumerable: true,
-    });
-    proto[key] = currentVal;
-};
+        configurable: true,
+    };
+}
