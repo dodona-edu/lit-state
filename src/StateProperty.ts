@@ -10,19 +10,20 @@ export function stateProperty(
     _proto: State,
     name: string | symbol,
     descriptor?: PropertyDescriptor
-): PropertyDescriptor | void | any {
+): PropertyDescriptor | void {
     const key = typeof name === "symbol" ? Symbol() : `__${String(name)}`;
+    const nameStr = typeof name === "symbol" ? name.toString() : name;
 
     // Case 1: field (no accessor descriptor passed)
     if (!descriptor) {
         return {
-            get(this: any) {
-                this.recordRead(name);
+            get(this: State) {
+                this.recordRead(nameStr);
                 return this[key];
             },
-            set(this: any, value: unknown) {
+            set(this: State, value: unknown) {
                 this[key] = value;
-                this.dispatchStateEvent(name);
+                this.dispatchStateEvent(nameStr);
             },
             enumerable: true,
             configurable: true,
@@ -34,17 +35,17 @@ export function stateProperty(
     const originalSet = descriptor.set;
 
     return {
-        get(this: any) {
-            this.recordRead(name);
+        get(this: State) {
+            this.recordRead(nameStr);
             return originalGet ? originalGet.call(this) : this[key];
         },
-        set(this: any, value: unknown) {
+        set(this: State, value: unknown) {
             if (originalSet) {
                 originalSet.call(this, value);
             } else {
                 this[key] = value;
             }
-            this.dispatchStateEvent(name);
+            this.dispatchStateEvent(nameStr);
         },
         enumerable: true,
         configurable: true,
