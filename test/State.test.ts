@@ -34,3 +34,40 @@ test("reading a stateProperty should record a read", () => {
     state.foo;
     expect(stateRecorder.recordRead).toHaveBeenCalled();
 });
+
+class GetSetExampleState extends State {
+    private _foo = "bar";
+
+    @stateProperty
+    get foo(): string {
+        this.getSideEffect();
+        return this._foo;
+    }
+
+    set foo(value: string) {
+        this.setSideEffect();
+        this._foo = value;
+    }
+
+    setSideEffect = vi.fn();
+    getSideEffect = vi.fn();
+}
+
+test("a stateProperty with getter and setter should work as expected", () => {
+    const state = new GetSetExampleState();
+    const subscriber = vi.fn();
+    state.subscribe(subscriber, "foo");
+    expect(state.foo).toBe("bar");
+    expect(state.getSideEffect).toHaveBeenCalled();
+    state.foo = "baz";
+    expect(state.setSideEffect).toHaveBeenCalled();
+    expect(subscriber).toHaveBeenCalled();
+    expect(state.foo).toBe("baz");
+});
+
+test("a read should record a read on the property", () => {
+    const state = new GetSetExampleState();
+    vi.spyOn(stateRecorder, "recordRead");
+    state.foo;
+    expect(stateRecorder.recordRead).toHaveBeenCalledWith(state, "foo");
+});
