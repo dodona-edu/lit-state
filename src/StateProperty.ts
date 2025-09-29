@@ -10,7 +10,7 @@ export function stateProperty(
     _proto: State,
     name: string | symbol,
     descriptor?: PropertyDescriptor
-): PropertyDescriptor | void {
+): PropertyDescriptor | void | any {
     const key = typeof name === "symbol" ? Symbol() : `__${String(name)}`;
     const nameStr = typeof name === "symbol" ? name.toString() : name;
 
