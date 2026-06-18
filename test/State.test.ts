@@ -18,6 +18,14 @@ test("a subscriber to a state should get notified anytime a stateProperty change
     expect(subscriber).toHaveBeenCalled();
 });
 
+test("a subscriber should not get notified when a stateProperty is set to its current value", () => {
+    const state = new ExampleState();
+    const subscriber = vi.fn();
+    state.subscribe(subscriber);
+    state.foo = "bar";
+    expect(subscriber).not.toHaveBeenCalled();
+});
+
 test("a subscriber to a stateProperty should get notified anytime that stateProperty changes", () => {
     const state = new ExampleState();
     const subscriber = vi.fn();

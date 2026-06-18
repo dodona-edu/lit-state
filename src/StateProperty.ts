@@ -22,6 +22,11 @@ export function stateProperty(
                 return this[key];
             },
             set(this: State, value: unknown) {
+                // Skip the event on no-op writes so subscribers don't re-render when
+                // the value is unchanged (mirrors Lit's default `hasChanged`).
+                if (this[key] === value) {
+                    return;
+                }
                 this[key] = value;
                 this.dispatchStateEvent(nameStr);
             },

@@ -12,14 +12,14 @@ class ExampleState extends State {
     @stateProperty foo = "bar";
     @stateProperty fool = "bars";
 }
-const state = new ExampleState();
-
 @customElement("example-element")
 class ExampleElement extends LitElement {}
 
+let state: ExampleState;
 let el: ExampleElement;
 let controller: StateController;
 beforeEach(async () => {
+    state = new ExampleState();
     el = await fixture(`<example-element></example-element>`);
     controller = new StateController(el);
 });
@@ -92,4 +92,37 @@ test("A statecontroller creates a single subcriber for each state", () => {
     expect(el.requestUpdate).toHaveBeenCalled();
     state.fool = "baz";
     expect(el.requestUpdate).toHaveBeenCalledTimes(2);
+});
+
+test("A statecontroller reuses a subscription across renders that read the same keys", () => {
+    controller.hostUpdate();
+    state.foo;
+    controller.hostUpdated();
+    const firstUnsubscribe = controller.unsubscribeList[0];
+
+    const subscribeSpy = vi.spyOn(state, "subscribe");
+    controller.hostUpdate();
+    state.foo;
+    controller.hostUpdated();
+
+    expect(subscribeSpy).not.toHaveBeenCalled();
+    expect(controller.unsubscribeList[0]).toBe(firstUnsubscribe);
+});
+
+test("A statecontroller re-subscribes when the set of read keys changes", () => {
+    controller.hostUpdate();
+    state.foo;
+    controller.hostUpdated();
+
+    const subscribeSpy = vi.spyOn(state, "subscribe");
+    controller.hostUpdate();
+    state.foo;
+    state.fool;
+    controller.hostUpdated();
+
+    expect(subscribeSpy).toHaveBeenCalledTimes(1);
+    expect(controller.unsubscribeList.length).toBe(1);
+    vi.spyOn(el, "requestUpdate");
+    state.fool = "baz";
+    expect(el.requestUpdate).toHaveBeenCalled();
 });
