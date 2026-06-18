@@ -23,8 +23,10 @@ export function stateProperty(
             },
             set(this: State, value: unknown) {
                 // Skip the event on no-op writes so subscribers don't re-render when
-                // the value is unchanged (mirrors Lit's default `hasChanged`).
-                if (this[key] === value) {
+                // the value is unchanged. Uses the same comparison as Lit's default
+                // `hasChanged` (`!Object.is`), so e.g. NaN -> NaN counts as unchanged
+                // while +0 -> -0 counts as a change.
+                if (Object.is(this[key], value)) {
                     return;
                 }
                 this[key] = value;

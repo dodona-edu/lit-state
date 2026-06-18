@@ -50,7 +50,9 @@ export class StateController implements ReactiveController {
      * subscribed state. Exposed for backwards compatibility and introspection.
      */
     get unsubscribeList(): Unsubscribe[] {
-        return [...this.subscriptions.values()].map((subscription) => subscription.unsubscribe);
+        const list: Unsubscribe[] = [];
+        this.subscriptions.forEach((subscription) => list.push(subscription.unsubscribe));
+        return list;
     }
 
     hostConnected(): void {
@@ -79,11 +81,16 @@ export class StateController implements ReactiveController {
         const log = stateRecorder.finish();
 
         // Drop subscriptions for states that were not read during this render.
-        for (const state of [...this.subscriptions.keys()]) {
+        // Collect first, then delete, so we never mutate the map while iterating it.
+        const stale: Array<{ state: State; subscription: Subscription }> = [];
+        this.subscriptions.forEach((subscription, state) => {
             if (!log.has(state)) {
-                this.subscriptions.get(state).unsubscribe();
-                this.subscriptions.delete(state);
+                stale.push({ state, subscription });
             }
+        });
+        for (const { state, subscription } of stale) {
+            subscription.unsubscribe();
+            this.subscriptions.delete(state);
         }
 
         // Reuse subscriptions whose set of read keys is unchanged; (re)subscribe
