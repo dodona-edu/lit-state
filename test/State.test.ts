@@ -8,6 +8,7 @@ import { expect, test, vi } from "vitest";
 class ExampleState extends State {
     @stateProperty foo = "bar";
     @stateProperty fool = "bars";
+    @stateProperty num = 0;
 }
 
 test("a subscriber to a state should get notified anytime a stateProperty changes", () => {
@@ -16,6 +17,23 @@ test("a subscriber to a state should get notified anytime a stateProperty change
     state.subscribe(subscriber);
     state.foo = "baz";
     expect(subscriber).toHaveBeenCalled();
+});
+
+test("a subscriber should not get notified when a stateProperty is set to its current value", () => {
+    const state = new ExampleState();
+    const subscriber = vi.fn();
+    state.subscribe(subscriber);
+    state.foo = "bar";
+    expect(subscriber).not.toHaveBeenCalled();
+});
+
+test("a subscriber should not get notified when a NaN stateProperty is re-set to NaN", () => {
+    const state = new ExampleState();
+    state.num = NaN;
+    const subscriber = vi.fn();
+    state.subscribe(subscriber);
+    state.num = NaN;
+    expect(subscriber).not.toHaveBeenCalled();
 });
 
 test("a subscriber to a stateProperty should get notified anytime that stateProperty changes", () => {

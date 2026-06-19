@@ -1,6 +1,23 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { stateRecorder } from "./StateRecorder";
-import { Unsubscribe } from "./State";
+import { State, Unsubscribe } from "./State";
+
+interface Subscription {
+    keys: Set<string | undefined>;
+    unsubscribe: Unsubscribe;
+}
+
+function keysEqual(a: Set<string | undefined>, b: Set<string | undefined>): boolean {
+    if (a.size !== b.size) {
+        return false;
+    }
+    for (const key of a) {
+        if (!b.has(key)) {
+            return false;
+        }
+    }
+    return true;
+}
 
 /**
  * `StateController` a [ReactiveController](https://lit.dev/docs/composition/controllers/) that
@@ -9,16 +26,33 @@ import { Unsubscribe } from "./State";
  *  of those stateProperties changes. Thanks to _@lit-app/state_ for introducing me to controllers
  *  for this usecase Reactive controllers
  *
+ * Subscriptions are diffed across render cycles: a state whose set of read keys is
+ * unchanged keeps its existing subscription. Only states that are no longer read, newly
+ * read, or read with a different set of keys touch `addEventListener`/`removeEventListener`.
+ * Because most components read the same state keys on every render, a re-render usually
+ * does no listener churn at all (the previous implementation unsubscribed and re-subscribed
+ * everything every render, i.e. O(states) listener operations per component per render).
+ *
  * This code is a combination of the code from the [@lit-app/state StateController](https://github.com/lit-apps/lit-app/blob/main/packages/state/src/state-controller.ts)
  * and the [litState observeState mixin](https://github.com/gitaarik/lit-state/blob/8cd66223612c3b115c0275f58f6cee5e900ee534/lit-state.js#L1)
  */
 export class StateController implements ReactiveController {
-    unsubscribeList: Unsubscribe[] = [];
+    private subscriptions: Map<State, Subscription> = new Map();
     wasConnected = false;
     isConnected = false;
 
     constructor(protected host: ReactiveControllerHost) {
         this.host.addController(this);
+    }
+
+    /**
+     * The unsubscribe functions for the currently active subscriptions, one per
+     * subscribed state. Exposed for backwards compatibility and introspection.
+     */
+    get unsubscribeList(): Unsubscribe[] {
+        const list: Unsubscribe[] = [];
+        this.subscriptions.forEach((subscription) => list.push(subscription.unsubscribe));
+        return list;
     }
 
     hostConnected(): void {
@@ -39,19 +73,41 @@ export class StateController implements ReactiveController {
     }
 
     hostUpdated(): void {
-        this.clearStateObservers();
         if (!this.isConnected) {
+            this.clearStateObservers();
             return;
         }
+
         const log = stateRecorder.finish();
+
+        // Drop subscriptions for states that were not read during this render.
+        // Collect first, then delete, so we never mutate the map while iterating it.
+        const stale: Array<{ state: State; subscription: Subscription }> = [];
+        this.subscriptions.forEach((subscription, state) => {
+            if (!log.has(state)) {
+                stale.push({ state, subscription });
+            }
+        });
+        for (const { state, subscription } of stale) {
+            subscription.unsubscribe();
+            this.subscriptions.delete(state);
+        }
+
+        // Reuse subscriptions whose set of read keys is unchanged; (re)subscribe
+        // only for states that are new or whose read keys changed.
         log.forEach((keys, state) => {
+            const existing = this.subscriptions.get(state);
+            if (existing && keysEqual(existing.keys, keys)) {
+                return;
+            }
+            existing?.unsubscribe();
             const unsubscribe = state.subscribe(() => this.host.requestUpdate(), keys);
-            this.unsubscribeList.push(unsubscribe);
+            this.subscriptions.set(state, { keys, unsubscribe });
         });
     }
 
     private clearStateObservers(): void {
-        this.unsubscribeList.forEach((unsubscribe) => unsubscribe());
-        this.unsubscribeList = [];
+        this.subscriptions.forEach((subscription) => subscription.unsubscribe());
+        this.subscriptions.clear();
     }
 }
