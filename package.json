@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "lit": "^3.3.1"
+    "lit": "^3.3.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
