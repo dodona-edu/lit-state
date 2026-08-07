@@ -58,7 +58,9 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v7
         with:
-          node-version: 22.x
+          # 24.x, not the 22.x the other workflows use: trusted publishing needs
+          # npm >= 11.5.1, and node 22 still ships npm 10, which fails ENEEDAUTH.
+          node-version: 24.x
           cache: yarn
           # No registry-url: auth uses npm trusted publishing (OIDC), which
           # needs no .npmrc, and the registry defaults to registry.npmjs.org.
