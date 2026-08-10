@@ -18,7 +18,7 @@ const finalizationRegistry = new FinalizationRegistry<WeakRef<Clearable>>((ref) 
 
 /**
  * This class extends the Map class to allow for state tracking
- * It notifies subscribers of key changes as if it where `stateProperties`.
+ * It notifies subscribers of key changes as if it were `stateProperties`.
  *
  * Every instance registers itself weakly, which allows `StateMap.clearAll()` to clear
  * all of them at once.
@@ -34,9 +34,11 @@ export class StateMap<K, V> extends State implements Map<K, V> {
     }
 
     /**
-     * Clears every `StateMap` that is still reachable, as if `clear()` was called on each
-     * of them individually. Subscribers of those maps are notified, just like they are for
-     * a regular `clear()`.
+     * Clears every `StateMap` that was still reachable when `clearAll()` was called, as if
+     * `clear()` was called on each of them individually. Subscribers of those maps are
+     * notified, just like they are for a regular `clear()`. Maps constructed afterwards,
+     * including ones a subscriber constructs while `clearAll()` is still running, are not
+     * affected.
      *
      * Instances that have already been garbage collected are silently skipped: the registry
      * holds weak references only, so it never keeps a map alive.
@@ -46,7 +48,7 @@ export class StateMap<K, V> extends State implements Map<K, V> {
      * scalar `stateProperty` values living next to them keep whatever value they had.
      */
     public static clearAll(): void {
-        for (const ref of liveStateMaps) {
+        for (const ref of [...liveStateMaps]) {
             const stateMap = ref.deref();
             if (stateMap === undefined) {
                 liveStateMaps.delete(ref);

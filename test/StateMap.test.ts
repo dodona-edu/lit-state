@@ -132,4 +132,19 @@ describe("StateMap", () => {
 
         expect(late.size).toBe(0);
     });
+
+    test("clearAll should not clear maps constructed while it is running", () => {
+        let created: StateMap<string, string> | undefined;
+        const unsubscribe = stateMap.subscribe(() => {
+            if (created === undefined) {
+                created = new StateMap<string, string>();
+                created.set("foo", "bar");
+            }
+        });
+
+        StateMap.clearAll();
+        unsubscribe();
+
+        expect(created?.size).toBe(1);
+    });
 });
