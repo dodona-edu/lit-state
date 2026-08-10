@@ -90,4 +90,61 @@ describe("StateMap", () => {
         stateMap.set("foo", "bar");
         expect(subscriber).toHaveBeenCalled();
     });
+
+    test("clearAll should empty every map", () => {
+        const other: StateMap<string, string> = new StateMap<string, string>();
+        const yetAnother: StateMap<number, number> = new StateMap<number, number>();
+        stateMap.set("foo", "bar");
+        other.set("baz", "qux");
+        yetAnother.set(1, 2);
+
+        StateMap.clearAll();
+
+        expect(stateMap.size).toBe(0);
+        expect(other.size).toBe(0);
+        expect(yetAnother.size).toBe(0);
+    });
+
+    test("clearAll should notify the subscribers of every map", () => {
+        const other: StateMap<string, string> = new StateMap<string, string>();
+        const subscriber = vi.fn();
+        const otherSubscriber = vi.fn();
+        stateMap.subscribe(subscriber);
+        other.subscribe(otherSubscriber);
+
+        StateMap.clearAll();
+
+        expect(subscriber).toHaveBeenCalled();
+        expect(otherSubscriber).toHaveBeenCalled();
+    });
+
+    test("clearAll should be safe when there is nothing to clear and when called twice in a row", () => {
+        StateMap.clearAll();
+        expect(() => StateMap.clearAll()).not.toThrow();
+    });
+
+    test("clearAll should also clear maps constructed after a previous call", () => {
+        StateMap.clearAll();
+
+        const late: StateMap<string, string> = new StateMap<string, string>();
+        late.set("foo", "bar");
+        StateMap.clearAll();
+
+        expect(late.size).toBe(0);
+    });
+
+    test("clearAll should not clear maps constructed while it is running", () => {
+        let created: StateMap<string, string> | undefined;
+        const unsubscribe = stateMap.subscribe(() => {
+            if (created === undefined) {
+                created = new StateMap<string, string>();
+                created.set("foo", "bar");
+            }
+        });
+
+        StateMap.clearAll();
+        unsubscribe();
+
+        expect(created?.size).toBe(1);
+    });
 });

@@ -46,7 +46,7 @@ The package exports the following:
 - `stateRecorder` instance. A global instance that records every property of a state that gets read between its start and finish. Credits to _litState_.
 - `StateController` a [ReactiveController](https://lit.dev/docs/composition/controllers/) that uses the `stateRecorder` to track all stateProperties that are read during a render cycle. It then subscribes to the relevant states to trigger an update of its host every time one of those stateProperties changes. Thanks to _@lit-app/state_ for introducing me to controllers for this use case.
 - `StateEvent` a custom event that signifies state changes. Credits _@lit-app/state_
-- `StateMap` extends `State` and implements `Map`. It  notifies subscribers of key changes as if it where stateProperties.
+- `StateMap` extends `State` and implements `Map`. It notifies subscribers of key changes as if it were stateProperties. Its static `StateMap.clearAll()` method clears every `StateMap` that is still reachable, notifying the subscribers of each of them. The main use is resetting shared state between tests without having to hand-clear every map. Instances are tracked with weak references, so maps that are constructed dynamically are still garbage collected as usual, and scalar `stateProperty` values are not affected.
 
 ## Contributing
 Contributions are welcome! Please open an issue or a pull request on GitHub.
