@@ -19,14 +19,13 @@ class StateRecorder {
         if (!this.started) {
             return;
         }
-        if (!this.log.has(stateObj)) {
-            this.log.set(stateObj, new Set());
+        let keys = this.log.get(stateObj);
+        if (!keys) {
+            keys = new Set();
+            this.log.set(stateObj, keys);
         }
 
-        const keys = this.log.get(stateObj);
-        if (!keys.has(key)) {
-            keys.add(key);
-        }
+        keys.add(key);
     }
 
     finish(): Map<State, Set<string | undefined>> {

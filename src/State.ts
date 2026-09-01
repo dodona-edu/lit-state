@@ -30,9 +30,10 @@ export class State extends EventTarget {
      */
     subscribe(callback: Callback, nameOrNames?: string | Set<string | undefined>): Unsubscribe {
         const names = nameOrNames instanceof Set ? nameOrNames : new Set([nameOrNames]);
-        const cb: EventListener = (event: StateEvent) => {
-            if (names.has(event.key) || !event.key || names.has(undefined)) {
-                callback(this, event.key);
+        const cb: EventListener = (event: Event) => {
+            const { key } = event as StateEvent;
+            if (names.has(key) || !key || names.has(undefined)) {
+                callback(this, key);
             }
         };
         this.addEventListener(StateEvent.eventName, cb);
