@@ -69,7 +69,7 @@ export class StateMap<K, V> extends State implements Map<K, V> {
     }
 
     public delete(key: K): boolean {
-        this.dispatchStateEvent(key.toString());
+        this.dispatchStateEvent(String(key));
         return this.map.delete(key);
     }
 
@@ -79,18 +79,18 @@ export class StateMap<K, V> extends State implements Map<K, V> {
     }
 
     public get(key: K): V | undefined {
-        this.recordRead(key.toString());
+        this.recordRead(String(key));
         return this.map.get(key);
     }
 
     public has(key: K): boolean {
-        this.recordRead(key.toString());
+        this.recordRead(String(key));
         return this.map.has(key);
     }
 
     public set(key: K, value: V): this {
         this.map.set(key, value);
-        this.dispatchStateEvent(key.toString());
+        this.dispatchStateEvent(String(key));
         return this;
     }
 

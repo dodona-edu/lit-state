@@ -23,7 +23,7 @@
     "@open-wc/testing-helpers": "^3.0.1",
     "eslint": "^10.9.1",
     "jsdom": "^30.0.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.68.0",
     "vitest": "^3.2.6"
   },
