@@ -9,8 +9,8 @@ test("stateRecorder should record all record read events between start and finis
     stateRecorder.recordRead(state, "bar");
     stateRecorder.recordRead(state, "foo");
     const log = stateRecorder.finish();
-    expect(log.get(state).has("foo")).toBe(true);
-    expect(log.get(state).has("bar")).toBe(true);
+    expect(log.get(state)?.has("foo")).toBe(true);
+    expect(log.get(state)?.has("bar")).toBe(true);
 });
 
 test("stateRecorder should be able to record from multiple states", () => {
@@ -21,10 +21,10 @@ test("stateRecorder should be able to record from multiple states", () => {
     stateRecorder.recordRead(state2, "bar");
     stateRecorder.recordRead(state2, "foo");
     const log = stateRecorder.finish();
-    expect(log.get(state1).has("foo")).toBe(true);
-    expect(log.get(state1).has("bar")).toBe(false);
-    expect(log.get(state2).has("bar")).toBe(true);
-    expect(log.get(state2).has("foo")).toBe(true);
+    expect(log.get(state1)?.has("foo")).toBe(true);
+    expect(log.get(state1)?.has("bar")).toBe(false);
+    expect(log.get(state2)?.has("bar")).toBe(true);
+    expect(log.get(state2)?.has("foo")).toBe(true);
 });
 
 test("stateRecorder should not ignore reads before start", () => {
