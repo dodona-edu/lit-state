@@ -22,7 +22,7 @@
     "@eslint/js": "^10.0.1",
     "@open-wc/testing-helpers": "^3.0.1",
     "eslint": "^10.9.1",
-    "jsdom": "^30.0.1",
+    "jsdom": "^30.1.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.68.0",
     "vitest": "^4.1.11"
